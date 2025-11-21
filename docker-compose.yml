@@ -1,0 +1,14 @@
+services:
+  api:
+    build: ./backend
+    container_name: crypto-api
+    expose:
+      - "8000"
+
+  frontend:
+    build: ./frontend
+    container_name: crypto-frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - api

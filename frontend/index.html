@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Crypto Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f3f4f6;
+            margin: 0;
+            padding: 40px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 420px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+            padding: 30px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            margin-top: 0;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        label {
+            font-size: 14px;
+            color: #444;
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+            background: #fafafa;
+            font-size: 15px;
+            margin-bottom: 15px;
+            transition: 0.15s;
+        }
+
+        select:hover {
+            border-color: #888;
+        }
+
+        button {
+            width: 100%;
+            background: #4f46e5;
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.2s;
+            font-weight: 600;
+        }
+
+        button:hover {
+            background: #4338ca;
+        }
+
+        .card {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 12px;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            display: none;
+        }
+
+        .price {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .change-green {
+            color: #10b981;
+            font-weight: 600;
+        }
+
+        .change-red {
+            color: #ef4444;
+            font-weight: 600;
+        }
+
+        .error {
+            margin-top: 15px;
+            color: #b91c1c;
+            font-weight: 600;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Crypto Tracker</h1>
+
+    <label>Kryptowaluta:</label>
+    <select id="symbol">
+        <option value="btc">BTC (Bitcoin)</option>
+        <option value="eth">ETH (Ethereum)</option>
+        <option value="ltc">LTC (Litecoin)</option>
+        <option value="xrp">XRP (Ripple)</option>
+    </select>
+
+    <label>Waluta:</label>
+    <select id="fiat">
+        <option value="usd">USD</option>
+    </select>
+
+    <button id="loadBtn">Pokaż kurs</button>
+
+    <div id="result" class="card"></div>
+    <div id="error" class="error"></div>
+</div>
+
+<script>
+    const btn = document.getElementById('loadBtn');
+    const resultDiv = document.getElementById('result');
+    const errorDiv = document.getElementById('error');
+
+    btn.addEventListener('click', async () => {
+        errorDiv.textContent = '';
+        resultDiv.style.display = 'none';
+        resultDiv.textContent = 'Ładowanie...';
+        resultDiv.style.display = 'block';
+
+        const symbol = document.getElementById('symbol').value;
+        const fiat = document.getElementById('fiat').value;
+
+        try {
+            const resp = await fetch(`/api/price?symbol=${symbol}&fiat=${fiat}`);
+            if (!resp.ok) {
+                const err = await resp.json().catch(() => ({}));
+                throw new Error(err.detail || `HTTP ${resp.status}`);
+            }
+
+            const data = await resp.json();
+
+            let classChange = data.change_24h >= 0 ? "change-green" : "change-red";
+            let changeText = data.change_24h ? data.change_24h.toFixed(2) : 0;
+
+            resultDiv.innerHTML = `
+                <div class="price">${data.symbol.toUpperCase()}/${data.fiat.toUpperCase()}</div>
+                <div>Cena: <strong>${data.price.toFixed(4)}</strong></div>
+                <div class="${classChange}">Zmiana 24h: ${changeText}%</div>
+            `;
+        } catch (e) {
+            resultDiv.style.display = 'none';
+            errorDiv.textContent = 'Błąd: ' + e.message;
+        }
+    });
+</script>
+
+</body>
+</html>
