@@ -1,7 +1,7 @@
 # Crypto Tracker
 
 Prosta aplikacja webowa do sprawdzania aktualnych kursów kryptowalut  
-(Bitcoin, Ethereum, Litecoin, XRP) w wybranej walucie (USD, EUR, PLN).  
+(Bitcoin, Ethereum, Litecoin, XRP) w wybranej walucie (USD).  
 Projekt działa w architekturze **dwóch kontenerów Docker**:  
 backend (FastAPI) + frontend (Nginx).
 
